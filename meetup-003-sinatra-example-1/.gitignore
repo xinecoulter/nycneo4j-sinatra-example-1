@@ -1,2 +1,7 @@
+.rvmrc
+.DS_STORE
 Gemfile.lock
+
+# Neo4j
 neo4j-community-2.0/data
+.bundle/*
