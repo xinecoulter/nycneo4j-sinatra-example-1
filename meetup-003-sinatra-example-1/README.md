@@ -19,7 +19,7 @@ Starting the Server
 Start Neo4j and then start our web server.
 
 ````
-./neo4j-community-2.0/bin neo4j start
+./neo4j-community-2.0/bin/neo4j start
 thin -R config.ru start
 ````
 
@@ -27,7 +27,7 @@ Try it Out!
 ==
 You can either make your own HTTP calls to the server (ie. with curl) or just run the included tests.  In order to keep things simple, we use Rack::Test. 
 
-Open a new console window while your server is running and run:
+Open a *new console window* while your server is running and run:
 
 ````ruby tests/user.rb````
 
