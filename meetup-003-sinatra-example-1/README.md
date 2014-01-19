@@ -13,13 +13,13 @@ We also use Thin, which is a fast Ruby web server. (http://code.macournoyer.com/
 Setup
 ==
 1.  Install our required Ruby gems via ````bundle install````
+2.  Download Neo4j install and start the server
 
-Starting the Server
+Starting Our Server
 ==
-Start Neo4j and then start our web server.
+Make sure Neo4j is started and is running on port 7474.
 
 ````
-./neo4j-community-2.0/bin/neo4j start
 thin -R config.ru start
 ````
 
