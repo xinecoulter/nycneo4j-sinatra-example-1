@@ -1,0 +1,7 @@
+source :rubygems
+gem 'sinatra'
+gem 'neography'
+group :development do
+  gem 'byebug'
+  gem 'sinatra-contrib'
+end
