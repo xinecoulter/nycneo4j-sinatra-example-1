@@ -27,15 +27,12 @@ Run
 ==
 
 1. Make sure your Neo4j server is started
-
-````<Neo4j directory>/bin/neo4j start````
+````./<Neo4j directory>/bin/neo4j start````
   
 2. Start our Ruby web server
- 
 ````thin -R config.ru start````
 
 3. Open a *new* console window and run our tests
-
 ````ruby tests/user.rb````
 
 Extra Credit Reading
