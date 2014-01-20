@@ -1,6 +1,10 @@
-source :rubygems
+source 'https://rubygems.org'
+
+ruby '2.0.0'
+
 gem 'sinatra'
 gem 'neography'
+gem 'thin'
 group :development do
   gem 'byebug'
   gem 'sinatra-contrib'

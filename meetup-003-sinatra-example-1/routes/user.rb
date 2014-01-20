@@ -1,6 +1,10 @@
 # encoding: utf-8
 class MyApp < Sinatra::Application
   
+  USER_INDEX = "user_index"
+  USER_INDEX_KEY = "username"
+  FOLLOWS_REL = "FOLLOWS"
+  
   # curl http://localhost:3000/users
   get "/users" do
     
@@ -19,7 +23,7 @@ class MyApp < Sinatra::Application
   # curl http://localhost:3000/users/smith3
   get "/users/:username" do
     
-    node = Neography::Node.find "user", "username", params['username']
+    node = Neography::Node.find USER_INDEX, USER_INDEX_KEY, params['username']
     if node.nil?
       status 410 
       body 'Not found' and return
@@ -33,41 +37,77 @@ class MyApp < Sinatra::Application
   # create user
   # curl -XPOST -d "user[username]=smith4&user[first_name]=joe" http://localhost:3000/users
   post "/users" do
-    # TODO update if already exists
-    # TODO wrap in model method, validate params
-    # TODO handle json, with curl example
-    node = Neography::Node.create_unique "user", "username", params['user']['username'], params['user'], $neo
-    # TODO what if an error occurs? how to show error message?
-    $neo.add_label(node, "User")
-    serialize(node).to_json
+    begin      
+      node = Neography::Node.create_unique USER_INDEX, USER_INDEX_KEY, params['user']['username'], params['user'], $neo
+      $neo.add_label(node, "User")
+      serialize(node).to_json
+    rescue Exception => err
+      status 500
+      body err
+    end
   end
 
   # update user
   # curl -XPUT -d "user[username]=smith4&user[first_name]=joe123" http://localhost:3000/users
   put "/users" do
-    node = Neography::Node.find("user", "username", params['user']['username'])
+    node = Neography::Node.find(USER_INDEX, USER_INDEX_KEY, params['user']['username'])
     $neo.set_node_properties node.neo_id, params['user']
-    node = Neography::Node.find("user", "username", params['user']['username'])
+    node = Neography::Node.find(USER_INDEX, USER_INDEX_KEY, params['user']['username'])
     serialize(node).to_json
   end  
   
   # delete user
   # curl -XDELETE http://localhost:3000/users/smith3
   delete "/users/:username" do
-    node = Neography::Node.find "user", "username", params['username']
-    if node.nil?
-      status 410 
-      body 'Not found' and return
+    begin
+      node = Neography::Node.find USER_INDEX, USER_INDEX_KEY, params['username']
+      if node.nil?
+        status 410 
+        body 'Not found' and return
+      end
+      $neo.delete_node! node # TODO* complain that the ! is needed if the node has relationships
+                             # TODO* complain that finding the real server error doesn't seem to be documented
+    rescue Exception => err
+      status 500
+      body err.backtrace # TODO puts in development, log in production
     end
-    $neo.delete_node node
   end
   
+  # follow another user
+  post "/users/:username/follow/:other_username" do
+    begin
+      node1 = Neography::Node.find USER_INDEX, USER_INDEX_KEY, params['username']
+      node2 = Neography::Node.find USER_INDEX, USER_INDEX_KEY, params['other_username']
+      if node1.nil? or node2.nil?
+        status 410
+        body 'Not found' and return
+      end
+      node1.outgoing(FOLLOWS_REL) << node2
+      {}.to_json
+    rescue Exception => err
+      status 500
+      body err
+    end
+  end
+  
+  # list users someone follows
+  get "/users/:username/following" do
+    begin
+      node = Neography::Node.find USER_INDEX, USER_INDEX_KEY, params['username']
+      nodes = node.outgoing(FOLLOWS_REL)
+      nodes.map { |n| serialize(n) }.to_json
+    rescue Exception => err
+      status 500
+      body err.backtrace # TODO puts in development, log in production
+    end
+  end 
+    
   private
   
     def serialize(user)
       # TODO find out why we can't use colon instead of rocket
       { 
-        "id" => user.neo_id,
+        "id" => user.neo_id, # TODO never show real ID in production
         "username" => user.username,
         "first_name" => user.first_name,
         "last_name" => user.last_name

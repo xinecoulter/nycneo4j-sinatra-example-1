@@ -14,7 +14,7 @@ Technologies Used
 Setup
 ==
 
-1. Install Ruby:  https://www.ruby-lang.org/en/installation
+1. Install Ruby 2.0:  https://www.ruby-lang.org/en/installation (if you already have another version of Ruby, RVM is recommended, http://rvm.io)
 2. Install Neo4j:  http://www.neo4j.org/download
 3. Install required Ruby gems for this example:
 
