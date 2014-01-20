@@ -14,15 +14,12 @@ Technologies Used
 Setup
 ==
 
-1. Install Ruby 2.0:  https://www.ruby-lang.org/en/installation (if you already have another version of Ruby, RVM is recommended, http://rvm.io)
-2. Install Neo4j:  http://www.neo4j.org/download
-3. Install required Ruby gems for this example:
-
-````
-cd <to this directory>
-bundle install
-````
-
+1. Install Ruby 2.0
+  - https://www.ruby-lang.org/en/installation (if you already have another version of Ruby, RVM is recommended, http://rvm.io)
+2. Install Neo4j 
+  - (http://www.neo4j.org/download)
+3. ````bundle install```` (run from this directory, this will install all required Ruby Gems for the code to run)
+  
 Run
 ==
 
