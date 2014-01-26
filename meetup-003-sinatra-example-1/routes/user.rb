@@ -7,31 +7,39 @@ class MyApp < Sinatra::Application
   
   # curl http://localhost:3000/users
   get "/users" do
+    begin
+      # list all users
+      nodes = $neo.execute_query("MATCH (n:User) RETURN n")
     
-    # list all users
-    nodes = $neo.execute_query("MATCH (n:User) RETURN n")
-    
-    items = []
-    nodes["data"].each do |hash| 
-      n = Neography::Node.load hash[0]
-      items << serialize(n)
+      items = []
+      nodes["data"].each do |hash| 
+        n = Neography::Node.load hash[0]
+        items << serialize(n)
+      end
+      items.to_json
+    rescue Exception => err
+      status 500
+      body err
     end
-    items.to_json
   end
   
   # show user
   # curl http://localhost:3000/users/smith3
   get "/users/:username" do
+    begin
+      node = Neography::Node.find USER_INDEX, USER_INDEX_KEY, params['username']
+      if node.nil?
+        status 410 
+        body 'Not found' and return
+      end
     
-    node = Neography::Node.find USER_INDEX, USER_INDEX_KEY, params['username']
-    if node.nil?
-      status 410 
-      body 'Not found' and return
+      # TODO move to_json to node as a wrapped model
+      # TODO render it as officially json
+      serialize(node).to_json
+    rescue Exception => err
+      status 500
+      body err
     end
-    
-    # TODO move to_json to node as a wrapped model
-    # TODO render it as officially json
-    serialize(node).to_json
   end
   
   # create user
@@ -101,6 +109,26 @@ class MyApp < Sinatra::Application
       body err.backtrace # TODO puts in development, log in production
     end
   end 
+  
+  # # check into a drink
+  # post "/users/:username/post" do
+  #   begin
+  #     # get user
+  #     user_node = Neography::Node.find USER_INDEX, USER_INDEX_KEY, params['username']
+  #     
+  #     # find drink by ID
+  #     drink_node = Neography::Node.find USER_INDEX, USER_INDEX_KEY, params['username']
+  #     
+  #     # create checkin node
+  #     checkin_node = Neography::Node.create_unique DRINK_INDEX, DRINK_INDEX_KEY, params['drink']['name'], params['drink'], $neo
+  #     $neo.add_label(node, "Checkin")
+  #     
+  #     
+  #   rescue Exception => err
+  #     status 500
+  #     body err.backtrace
+  #   end
+  # end
     
   private
   

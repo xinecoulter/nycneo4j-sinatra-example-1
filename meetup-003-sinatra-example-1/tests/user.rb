@@ -13,7 +13,7 @@ class UserTest < Test::Unit::TestCase
   end
     
   def test_users
-      
+
     username1 = 'kreeves' + rand(100).to_s      # Neo from the Matrix
     
     # create a user
